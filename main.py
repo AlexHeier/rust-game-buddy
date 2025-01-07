@@ -1,14 +1,42 @@
 import asyncio
 import json
 import math
+import requests
+import uuid
 
 from enum import Enum
 from typing import Dict
+from push_receiver import PushReceiver
+from push_receiver.android_fcm_register import AndroidFCM
 from rustplus import RustSocket, CommandOptions, Command, ServerDetails, ChatCommand, Emoji
 
-def load_servers_from_json(file_path):
+load_dotenv()
+
+def load_from_json(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
+
+google_service = load_from_json("google-services.json")
+
+fcm = AndroidFCM.register(
+    os.environ("FCM_API_KEY"),
+    google_service["project_info"]["project_id"],
+    google_service["project_info"]["project_number"],
+    google_service["client"][0]["client_info"]["mobilesdk_app_id"],
+    google_service["client"][0]["client_info"]["android_client_info"]["package_name"],
+    google_service["client"][0]["api_key"][0]["current_key"]
+)
+
+r = requests.post(
+    "https://exp.host/--/api/v2/push/getExpoPushToken",
+    data={
+        "deviceId": uuid.uuid4(),
+        "projectId": os.environ("EXPO_API_KEY"),
+        "appId": google_service["client"][0]["client_info"]["android_client_info"]["package_name"],
+        "deviceToken": f["fcm"]["token"],
+        "type": "fcm",
+        "development": False
+    })
 
 class MarkerType(Enum):
     Explosion = 2
@@ -168,7 +196,7 @@ async def connect_server(server_ip, server_port, player_id, player_token):
     await socket.disconnect()
 
 async def main():
-    servers = load_servers_from_json('servers.json')
+    servers = load_from_json('servers.json')
     tasks = []
 
     for server in servers:
