@@ -2,7 +2,7 @@
 
 A lightweight in-game assistant powered by `rustplus.py`.
 
-This program notifies you about major events on the server, such as teammate deaths or status changes (online/offline). It also provides simple team chat commands for retrieving in-game information.
+This program notifies you about major events on the server, such as Cargo Ship, PatrolHelicopter, teammate deaths or status changes (online/offline)and more. It also provides simple team chat commands for retrieving in-game information.
 
 ---
 
