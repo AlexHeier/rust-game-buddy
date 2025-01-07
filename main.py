@@ -1,12 +1,10 @@
 import asyncio
 import json
-from typing import Dict
-from rustplus import RustSocket, CommandOptions, Command, ServerDetails, ChatCommand
-from dotenv import load_dotenv
 import math
-from enum import Enum
 
-load_dotenv()
+from enum import Enum
+from typing import Dict
+from rustplus import RustSocket, CommandOptions, Command, ServerDetails, ChatCommand, Emoji
 
 def load_servers_from_json(file_path):
     with open(file_path, 'r') as file:
@@ -29,7 +27,7 @@ async def convert_to_grid(x_coord, y_coord, socket):
 
     col_letter = chr(int(col_index) + ord('A'))
 
-    row_number = 24 - row_index + 1
+    row_number = 25 - row_index
     
     return f"{col_letter}{int(row_number)}"
 
@@ -70,14 +68,14 @@ async def playerStatus(socket, previous_state):
             # Check for online/offline status change
             if prev_state["is_online"] != current_state["is_online"]:
                 if current_state["is_online"]:
-                    await socket.send_team_message(f"{member.name} is now online!")
+                    await socket.send_team_message(f"Welcome back {member.name} {Emoji.COOL}")
                 else:
-                    await socket.send_team_message(f"{member.name} went offline!")
+                    await socket.send_team_message(f"{member.name} went offline! {Emoji.SKULL}")
 
             # Check if the player died
             if prev_state["is_alive"] != current_state["is_alive"] and not current_state["is_alive"]:
                 coordinates = await convert_to_grid(member.x, member.y, socket)
-                await socket.send_team_message(f"{member.name} died @ {coordinates}")
+                await socket.send_team_message(f"{Emoji.EYES} {member.name} died @ {coordinates} {Emoji.EXCLAMATION}")
         
         # Update the previous state
         previous_state[player_id] = current_state
